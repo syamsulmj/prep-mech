@@ -24,6 +24,7 @@ defmodule PrepMech.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import PrepMech.DataCase
+      import PrepMech.Factory
     end
   end
 
