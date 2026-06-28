@@ -2,6 +2,8 @@ defmodule PrepMech.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t() :: %__MODULE__{}
+
   @roles [:customer, :shopper]
 
   schema "users" do
