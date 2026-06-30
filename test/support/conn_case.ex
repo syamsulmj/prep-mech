@@ -28,11 +28,22 @@ defmodule PrepMechWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import PrepMechWeb.ConnCase
+      import PrepMech.Factory
     end
   end
 
   setup tags do
     PrepMech.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  @doc """
+  Logs the given `user` into the `conn` by setting the session `:user_id`,
+  mirroring what `PrepMechWeb.Auth.log_in_user/2` does in the app.
+  """
+  def log_in_user(conn, user) do
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:user_id, user.id)
   end
 end
