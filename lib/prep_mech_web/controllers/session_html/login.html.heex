@@ -15,8 +15,7 @@
           PREPMECH
         </p>
         <p class="pa-glow-cyan mt-1.5 text-[0.95rem] uppercase tracking-[0.12em] text-pa-cyan">
-          Order tracking, after dark<span class="pa-blink ml-1 inline-block h-[1em] w-[0.5em] align-[-0.12em] bg-pa-cyan">
-          </span>
+          Order tracking, after dark<span class="pa-blink ml-1 inline-block h-[1em] w-[0.5em] align-[-0.12em] bg-pa-cyan"></span>
         </p>
       </div>
     </section>
@@ -30,7 +29,8 @@
           alt="Pixel-art cyberpunk shop interior"
           class="pa-pixelated block h-full w-full object-cover"
         />
-        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[rgba(11,14,22,0.95)]"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[rgba(11,14,22,0.95)]">
+        </div>
         <div class="absolute bottom-5 left-6 z-[2]">
           <p class="pa-glow-amber font-pixel text-[2rem] font-bold leading-none tracking-[1px] text-pa-amber">
             PREPMECH
@@ -59,18 +59,31 @@
             class="pa-stagger border-2 border-pa-line bg-gradient-to-b from-pa-panel to-[#101525] p-6 shadow-[0_22px_48px_-20px_rgba(0,0,0,0.85)] sm:p-8"
           >
             <div>
-              <p class="text-xs font-medium uppercase tracking-[0.22em] text-pa-amber">// secure access</p>
-              <p class="mt-1.5 font-pixel text-3xl font-bold leading-[1.05] text-pa-text">Access terminal</p>
+              <p class="text-xs font-medium uppercase tracking-[0.22em] text-pa-amber">
+                // secure access
+              </p>
+              <p class="mt-1.5 font-pixel text-3xl font-bold leading-[1.05] text-pa-text">
+                Access terminal
+              </p>
               <p class="mt-2 text-sm text-pa-muted">
                 No account yet?
-                <.link navigate={~p"/signup"} class="text-pa-cyan underline underline-offset-[3px] hover:text-pa-amber">
+                <.link
+                  navigate={~p"/signup"}
+                  class="text-pa-cyan underline underline-offset-[3px] hover:text-pa-amber"
+                >
                   Sign up
                 </.link>
               </p>
             </div>
 
             <div class="mt-6 flex flex-col gap-4">
-              <.pa_input field={f[:email]} type="email" label="Email" autocomplete="username" required />
+              <.pa_input
+                field={f[:email]}
+                type="email"
+                label="Email"
+                autocomplete="username"
+                required
+              />
               <.pa_input
                 field={f[:password]}
                 type="password"

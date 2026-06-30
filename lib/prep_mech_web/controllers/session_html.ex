@@ -12,7 +12,10 @@ defmodule PrepMechWeb.SessionHTML do
   def pa_input(assigns) do
     ~H"""
     <div class="flex flex-col gap-1.5">
-      <label for={@field.id} class="font-mono font-medium text-xs tracking-[0.16em] uppercase text-pa-amber">
+      <label
+        for={@field.id}
+        class="font-mono font-medium text-xs tracking-[0.16em] uppercase text-pa-amber"
+      >
         {@label}
       </label>
       <input
@@ -36,7 +39,10 @@ defmodule PrepMechWeb.SessionHTML do
   def pa_select(assigns) do
     ~H"""
     <div class="flex flex-col gap-1.5">
-      <label for={@field.id} class="font-mono font-medium text-xs tracking-[0.16em] uppercase text-pa-amber">
+      <label
+        for={@field.id}
+        class="font-mono font-medium text-xs tracking-[0.16em] uppercase text-pa-amber"
+      >
         {@label}
       </label>
       <select id={@field.id} name={@field.name} class="pa-select">
