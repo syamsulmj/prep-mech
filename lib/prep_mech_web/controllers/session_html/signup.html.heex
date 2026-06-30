@@ -1,0 +1,29 @@
+<div class="mx-auto max-w-sm">
+  <.header class="text-center">
+    Create an account
+    <:subtitle>
+      Already have an account?
+      <.link navigate={~p"/login"} class="font-semibold text-brand hover:underline">
+        Log in
+      </.link>
+    </:subtitle>
+  </.header>
+
+  <.simple_form :let={f} for={@changeset} action={~p"/signup"}>
+    <.input field={f[:name]} type="text" label="Name" required />
+    <.input field={f[:email]} type="email" label="Email" required />
+    <.input field={f[:phone]} type="tel" label="Phone" />
+    <.input field={f[:address]} type="text" label="Address" />
+    <.input field={f[:password]} type="password" label="Password" required />
+    <.input
+      field={f[:role]}
+      type="select"
+      label="I am a"
+      options={[{"Customer", "customer"}, {"Shopper", "shopper"}]}
+    />
+
+    <:actions>
+      <.button class="w-full">Sign up</.button>
+    </:actions>
+  </.simple_form>
+</div>

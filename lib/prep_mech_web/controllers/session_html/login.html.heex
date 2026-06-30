@@ -1,0 +1,20 @@
+<div class="mx-auto max-w-sm">
+  <.header class="text-center">
+    Log in to your account
+    <:subtitle>
+      Don't have an account?
+      <.link navigate={~p"/signup"} class="font-semibold text-brand hover:underline">
+        Sign up
+      </.link>
+    </:subtitle>
+  </.header>
+
+  <.simple_form :let={f} for={@conn.params["user"]} as={:user} action={~p"/login"}>
+    <.input field={f[:email]} type="email" label="Email" required />
+    <.input field={f[:password]} type="password" label="Password" required />
+
+    <:actions>
+      <.button class="w-full">Log in</.button>
+    </:actions>
+  </.simple_form>
+</div>

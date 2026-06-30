@@ -1,6 +1,8 @@
 defmodule PrepMechWeb.Router do
   use PrepMechWeb, :router
 
+  import PrepMechWeb.Auth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -8,16 +10,29 @@ defmodule PrepMechWeb.Router do
     plug :put_root_layout, html: {PrepMechWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+  ## Authenticated-only routes
   scope "/", PrepMechWeb do
-    pipe_through :browser
+    pipe_through [:browser, :ensure_authenticated]
 
     get "/", PageController, :home
+    delete "/logout", SessionController, :logout
+  end
+
+  ## Guest-only routes — redirect logged-in users to "/"
+  scope "/", PrepMechWeb do
+    pipe_through [:browser, :non_authenticated]
+
+    get "/login", SessionController, :login
+    post "/login", SessionController, :validate_login
+    get "/signup", SessionController, :signup
+    post "/signup", SessionController, :create_user
   end
 
   # Other scopes may use custom stacks.
