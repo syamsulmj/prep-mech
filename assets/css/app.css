@@ -3,3 +3,197 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* ============================================================
+   Self-hosted fonts (OFL) — served from priv/static/fonts.
+   Registered as Tailwind families `font-pixel` / `font-mono`
+   in tailwind.config.js.
+   ============================================================ */
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/fonts/pixelify-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixelify Sans";
+  src: url("/fonts/pixelify-sans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/jetbrains-mono-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================================
+   Pixel-art auth — EFFECTS ONLY.
+   Layout/colour/spacing/typography live as Tailwind utilities
+   in the templates; the rules below are the things utilities
+   can't express cleanly (pseudo-elements, keyframes, the
+   styled form controls that must override @tailwindcss/forms,
+   neon glows). Colour tokens mirror `theme.colors.pa.*`.
+   ============================================================ */
+@keyframes pa-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pa-blink {
+  50% { opacity: 0; }
+}
+
+/* root atmosphere: night gradient + CRT scanlines */
+.pixel-auth {
+  --pa-amber: #f7c948;
+  --pa-amber-soft: #ffd76b;
+  --pa-cyan: #3ad0c8;
+  --pa-line: #283350;
+  --pa-text: #e7ecf3;
+  background: radial-gradient(120% 80% at 70% 0%, #131a2c 0%, #0b0e16 55%, #070910 100%);
+}
+.pixel-auth::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.16) 0,
+    rgba(0, 0, 0, 0.16) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.45;
+}
+
+/* crisp pixel scaling for the gifs */
+.pa-pixelated {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+}
+
+/* neon text glows */
+.pa-glow-amber {
+  text-shadow: 0 0 8px rgba(247, 201, 72, 0.55), 0 0 22px rgba(247, 201, 72, 0.3),
+    3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+.pa-glow-cyan {
+  text-shadow: 0 0 8px rgba(58, 208, 200, 0.45);
+}
+
+/* glowing dot (terminal "live" + status footer) */
+.pa-dot-glow {
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* amber corner brackets framing the card */
+.pa-frame::before,
+.pa-frame::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 0 4px rgba(247, 201, 72, 0.5));
+}
+.pa-frame::before {
+  top: -6px;
+  left: -6px;
+  border-top: 3px solid var(--pa-amber);
+  border-left: 3px solid var(--pa-amber);
+}
+.pa-frame::after {
+  bottom: -6px;
+  right: -6px;
+  border-bottom: 3px solid var(--pa-amber);
+  border-right: 3px solid var(--pa-amber);
+}
+
+/* blink + staggered entrance */
+.pa-blink { animation: pa-blink 1.1s steps(1) infinite; }
+.pa-stagger > * { animation: pa-rise 0.4s both; }
+.pa-stagger > *:nth-child(1) { animation-delay: 0.06s; }
+.pa-stagger > *:nth-child(2) { animation-delay: 0.12s; }
+.pa-stagger > *:nth-child(3) { animation-delay: 0.18s; }
+.pa-stagger > *:nth-child(4) { animation-delay: 0.24s; }
+
+/* styled form controls — self-contained so they cleanly override
+   the @tailwindcss/forms base styles, plus the neon focus effect */
+.pa-input,
+.pa-select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.95rem;
+  color: var(--pa-text);
+  background: #0a0f1b;
+  border: 2px solid var(--pa-line);
+  border-radius: 0;
+  caret-color: var(--pa-amber);
+  outline: none;
+  appearance: none;
+  transition: border-color 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.pa-input::placeholder { color: #4d5773; }
+.pa-input:focus,
+.pa-select:focus {
+  border-color: var(--pa-amber);
+  background: #0c1322;
+  box-shadow: 0 0 0 1px var(--pa-amber), 0 0 14px rgba(247, 201, 72, 0.35);
+}
+.pa-select {
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--pa-cyan) 50%),
+    linear-gradient(135deg, var(--pa-cyan) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 1.1rem, calc(100% - 12px) 1.1rem;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+/* pixel CTA button */
+.pa-btn {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  font-family: "Pixelify Sans", ui-monospace, monospace;
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #120e02;
+  background: var(--pa-amber);
+  border: 2px solid #120e02;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 0 #6f5311, 0 0 18px rgba(247, 201, 72, 0.25);
+  transition: transform 0.08s, box-shadow 0.12s, background 0.12s;
+}
+.pa-btn:hover {
+  background: var(--pa-amber-soft);
+  box-shadow: 4px 4px 0 0 #6f5311, 0 0 26px rgba(247, 201, 72, 0.55);
+}
+.pa-btn:active {
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 18px rgba(247, 201, 72, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-auth *,
+  .pa-blink {
+    animation: none !important;
+    transition: none !important;
+  }
+}

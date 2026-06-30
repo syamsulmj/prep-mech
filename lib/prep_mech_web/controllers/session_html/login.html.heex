@@ -1,20 +1,93 @@
-<div class="mx-auto max-w-sm">
-  <.header class="text-center">
-    Log in to your account
-    <:subtitle>
-      Don't have an account?
-      <.link navigate={~p"/signup"} class="font-semibold text-brand hover:underline">
-        Sign up
-      </.link>
-    </:subtitle>
-  </.header>
+<.flash_group flash={@flash} />
+<div class="pixel-auth relative h-[100dvh] overflow-hidden font-mono text-pa-text text-[15px]">
+  <div class="relative z-[1] grid h-full grid-cols-1 lg:grid-cols-[1.05fr_1fr]">
+    <%!-- Desktop hero: portrait order-stall gif --%>
+    <section class="relative hidden h-full overflow-hidden border-r-2 border-pa-line lg:block">
+      <img
+        src={~p"/images/pixel-art-order-stall.gif"}
+        alt="Pixel-art delivery truck at a neon-lit store on a rainy night"
+        class="pa-pixelated block h-full w-full object-cover object-bottom"
+      />
+      <div class="absolute inset-0 bg-gradient-to-b from-[rgba(7,9,16,0.1)] via-[rgba(7,9,16,0.35)] to-[rgba(7,9,16,0.92)]">
+      </div>
+      <div class="absolute bottom-8 left-6 right-6 z-[2] sm:bottom-12 sm:left-12">
+        <p class="pa-glow-amber font-pixel text-[clamp(2rem,4vw,3rem)] font-bold leading-none tracking-[1px] text-pa-amber">
+          PREPMECH
+        </p>
+        <p class="pa-glow-cyan mt-1.5 text-[0.95rem] uppercase tracking-[0.12em] text-pa-cyan">
+          Order tracking, after dark<span class="pa-blink ml-1 inline-block h-[1em] w-[0.5em] align-[-0.12em] bg-pa-cyan">
+          </span>
+        </p>
+      </div>
+    </section>
 
-  <.simple_form :let={f} for={@conn.params["user"]} as={:user} action={~p"/login"}>
-    <.input field={f[:email]} type="email" label="Email" required />
-    <.input field={f[:password]} type="password" label="Password" required />
+    <%!-- Form column --%>
+    <div class="flex h-full min-h-0 flex-col">
+      <%!-- Mobile banner: landscape shop gif --%>
+      <div class="relative h-[30vh] min-h-[180px] overflow-hidden border-b-2 border-pa-line lg:hidden">
+        <img
+          src={~p"/images/pixel-art-shop.gif"}
+          alt="Pixel-art cyberpunk shop interior"
+          class="pa-pixelated block h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-[rgba(11,14,22,0.95)]"></div>
+        <div class="absolute bottom-5 left-6 z-[2]">
+          <p class="pa-glow-amber font-pixel text-[2rem] font-bold leading-none tracking-[1px] text-pa-amber">
+            PREPMECH
+          </p>
+        </div>
+      </div>
 
-    <:actions>
-      <.button class="w-full">Log in</.button>
-    </:actions>
-  </.simple_form>
+      <%!-- Panel (scrolls internally if the form is taller than the viewport) --%>
+      <section class="flex flex-1 min-h-0 justify-center overflow-y-auto px-5 py-8 sm:px-10 sm:py-12">
+        <div class="pa-frame relative my-auto w-full max-w-[26rem]">
+          <div class="flex items-center gap-2 border-2 border-b-0 border-pa-line bg-[#0c1120] px-3 py-2.5">
+            <span class="h-[0.7rem] w-[0.7rem] bg-pa-magenta"></span>
+            <span class="h-[0.7rem] w-[0.7rem] bg-pa-amber"></span>
+            <span class="h-[0.7rem] w-[0.7rem] bg-pa-cyan"></span>
+            <span class="ml-1.5 text-[0.8rem] uppercase tracking-[0.14em] text-pa-muted">login.exe</span>
+            <span class="ml-auto inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.12em] text-pa-cyan">
+              <span class="pa-blink pa-dot-glow h-2 w-2 bg-pa-cyan text-pa-cyan"></span>live
+            </span>
+          </div>
+
+          <.form
+            :let={f}
+            for={@conn.params["user"]}
+            as={:user}
+            action={~p"/login"}
+            class="pa-stagger border-2 border-pa-line bg-gradient-to-b from-pa-panel to-[#101525] p-6 shadow-[0_22px_48px_-20px_rgba(0,0,0,0.85)] sm:p-8"
+          >
+            <div>
+              <p class="text-xs font-medium uppercase tracking-[0.22em] text-pa-amber">// secure access</p>
+              <p class="mt-1.5 font-pixel text-3xl font-bold leading-[1.05] text-pa-text">Access terminal</p>
+              <p class="mt-2 text-sm text-pa-muted">
+                No account yet?
+                <.link navigate={~p"/signup"} class="text-pa-cyan underline underline-offset-[3px] hover:text-pa-amber">
+                  Sign up
+                </.link>
+              </p>
+            </div>
+
+            <div class="mt-6 flex flex-col gap-4">
+              <.pa_input field={f[:email]} type="email" label="Email" autocomplete="username" required />
+              <.pa_input
+                field={f[:password]}
+                type="password"
+                label="Password"
+                autocomplete="current-password"
+                required
+              />
+            </div>
+
+            <button type="submit" class="pa-btn mt-6">Log in</button>
+
+            <p class="mt-6 flex items-center gap-2 border-t border-dashed border-pa-line pt-4 text-xs uppercase tracking-[0.1em] text-pa-muted">
+              <span class="pa-dot-glow h-2 w-2 bg-pa-cyan text-pa-cyan"></span>Encrypted channel · PrepMech night ops
+            </p>
+          </.form>
+        </div>
+      </section>
+    </div>
+  </div>
 </div>

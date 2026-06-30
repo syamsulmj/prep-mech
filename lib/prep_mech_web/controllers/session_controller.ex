@@ -9,7 +9,7 @@ defmodule PrepMechWeb.SessionController do
 
   @doc "Renders the login form."
   def login(conn, _params) do
-    render(conn, :login)
+    render(conn, :login, layout: false)
   end
 
   @doc "Authenticates the submitted credentials and starts a session."
@@ -24,7 +24,7 @@ defmodule PrepMechWeb.SessionController do
       {:error, :unauthorized} ->
         conn
         |> put_flash(:error, "Invalid email or password.")
-        |> render(:login)
+        |> render(:login, layout: false)
     end
   end
 
@@ -32,7 +32,7 @@ defmodule PrepMechWeb.SessionController do
 
   @doc "Renders the signup form."
   def signup(conn, _params) do
-    render(conn, :signup, changeset: Accounts.change_user_registration(%User{}))
+    render(conn, :signup, changeset: Accounts.change_user_registration(%User{}), layout: false)
   end
 
   @doc "Creates a user (customer or shopper) and starts a session."
@@ -50,7 +50,7 @@ defmodule PrepMechWeb.SessionController do
         |> redirect(to: ~p"/")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, :signup, changeset: changeset)
+        render(conn, :signup, changeset: changeset, layout: false)
     end
   end
 

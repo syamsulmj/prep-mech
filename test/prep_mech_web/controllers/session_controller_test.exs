@@ -7,8 +7,11 @@ defmodule PrepMechWeb.SessionControllerTest do
     test "renders the login form", %{conn: conn} do
       conn = get(conn, ~p"/login")
       response = html_response(conn, 200)
-      assert response =~ "Log in"
+      assert response =~ "Access terminal"
       assert response =~ ~s(name="user[email]")
+      assert response =~ ~s(name="user[password]")
+      # full-bleed: the default Phoenix app-layout header should be gone
+      refute response =~ "github.com/phoenixframework"
     end
 
     test "redirects authenticated users to /", %{conn: conn} do
@@ -38,7 +41,7 @@ defmodule PrepMechWeb.SessionControllerTest do
           "user" => %{"email" => user.email, "password" => "wrong password"}
         })
 
-      assert html_response(conn, 200) =~ "Log in"
+      assert html_response(conn, 200) =~ "Access terminal"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Invalid email or password"
       refute get_session(conn, :user_id)
     end
@@ -48,7 +51,7 @@ defmodule PrepMechWeb.SessionControllerTest do
     test "renders the signup form with user-namespaced fields", %{conn: conn} do
       conn = get(conn, ~p"/signup")
       response = html_response(conn, 200)
-      assert response =~ "Create an account"
+      assert response =~ "Create account"
       assert response =~ ~s(name="user[email]")
     end
   end
@@ -90,7 +93,7 @@ defmodule PrepMechWeb.SessionControllerTest do
       conn = post(conn, ~p"/signup", %{"user" => %{"email" => "nope"}})
 
       response = html_response(conn, 200)
-      assert response =~ "Create an account"
+      assert response =~ "Create account"
       assert response =~ "must have the @ sign and no spaces"
       refute get_session(conn, :user_id)
     end

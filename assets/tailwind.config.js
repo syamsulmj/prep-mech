@@ -15,7 +15,23 @@ module.exports = {
     extend: {
       colors: {
         brand: "#FD4F00",
-      }
+        // Pixel-art auth theme tokens (see assets/css/app.css for the effects)
+        pa: {
+          bg: "#0b0e16",
+          panel: "#141a29",
+          line: "#283350",
+          amber: "#f7c948",
+          "amber-soft": "#ffd76b",
+          cyan: "#3ad0c8",
+          magenta: "#e85d9a",
+          text: "#e7ecf3",
+          muted: "#828ca6",
+        },
+      },
+      fontFamily: {
+        pixel: ['"Pixelify Sans"', "ui-monospace", "monospace"],
+        mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+      },
     },
   },
   plugins: [
