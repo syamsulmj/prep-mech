@@ -197,3 +197,31 @@
     transition: none !important;
   }
 }
+
+/* ============================================================
+   Linear-style interior components (platform content).
+   Layout/responsive utilities live in the templates; these are
+   the repeated form controls kept DRY. Tokens mirror theme.ui.*.
+   ============================================================ */
+@layer components {
+  .ui-input {
+    @apply w-full rounded-md border border-ui-line bg-ui-surface-2 px-3 py-2 text-sm text-ui-text;
+    @apply placeholder:text-ui-text-3 focus:border-st-amber focus:outline-none;
+  }
+  .ui-input:focus {
+    box-shadow: 0 0 0 3px rgba(247, 201, 72, 0.15);
+  }
+
+  .ui-btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md bg-st-amber px-4 py-2;
+    @apply text-sm font-semibold text-st-amber-ink transition-colors hover:bg-st-amber-soft;
+  }
+  .ui-btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md border border-ui-line bg-ui-surface-2 px-3 py-2;
+    @apply text-sm font-medium text-ui-text transition-colors hover:bg-ui-raised;
+  }
+  .ui-btn-ghost {
+    @apply inline-flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-ui-line px-3 py-2;
+    @apply text-sm text-ui-text-2 transition-colors hover:border-ui-text-3 hover:text-ui-text;
+  }
+}

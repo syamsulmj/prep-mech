@@ -27,6 +27,29 @@ module.exports = {
           text: "#e7ecf3",
           muted: "#828ca6",
         },
+        // Linear-style interior theme (platform content, not the auth front door)
+        ui: {
+          canvas: "#0c0d10",
+          surface: "#131417",
+          "surface-2": "#17191d",
+          raised: "#1b1d22",
+          line: "#24262c",
+          "line-soft": "#1b1d22",
+          text: "#e7e8ea",
+          "text-2": "#9a9ea7",
+          "text-3": "#676b74",
+        },
+        // Status + accent hues for the interior
+        st: {
+          amber: "#f7c948",
+          "amber-soft": "#ffd76b",
+          "amber-ink": "#1a1400",
+          blue: "#5b9dff",
+          cyan: "#34d3c1",
+          violet: "#a78bfa",
+          green: "#4ade80",
+          red: "#f87171",
+        },
       },
       fontFamily: {
         pixel: ['"Pixelify Sans"', "ui-monospace", "monospace"],
