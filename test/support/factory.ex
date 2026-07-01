@@ -19,6 +19,8 @@ defmodule PrepMech.Factory do
 
   use ExMachina.Ecto, repo: PrepMech.Repo
 
+  alias PrepMech.LineItem
+  alias PrepMech.Order
   alias PrepMech.User
 
   @doc "The plaintext password backing every factory-built user."
@@ -32,6 +34,23 @@ defmodule PrepMech.Factory do
       address: "1 Test Street",
       role: :customer,
       password_hashed: Bcrypt.hash_pwd_salt(valid_password())
+    }
+  end
+
+  def order_factory do
+    %Order{
+      status: :pending,
+      delivery_address: "1 Test Street",
+      customer: build(:user, role: :customer),
+      line_items: [build(:line_item)]
+    }
+  end
+
+  def line_item_factory do
+    %LineItem{
+      name: sequence(:item_name, &"Item #{&1}"),
+      quantity: 1,
+      pickup_status: :pending
     }
   end
 
