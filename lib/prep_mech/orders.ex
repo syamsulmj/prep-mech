@@ -32,11 +32,28 @@ defmodule PrepMech.Orders do
     |> Repo.insert()
   end
 
+  @doc "Returns a blank order changeset, for rendering the create form."
+  def change_order(attrs \\ %{}), do: Order.create_changeset(%Order{}, attrs)
+
   @doc "Gets an order by id. Raises if it does not exist."
   def get_order!(id), do: Repo.get!(Order, id)
 
   @doc "Gets an order by id, or `nil`."
   def get_order(id), do: Repo.get(Order, id)
+
+  @doc """
+  Gets an order scoped to its owning customer, with line items and shopper
+  preloaded, or `nil` if it does not exist or belongs to someone else.
+
+  Authorization lives here so the web layer cannot accidentally leak another
+  customer's order.
+  """
+  def get_customer_order(customer_id, order_id) do
+    Order
+    |> where([o], o.id == ^order_id and o.customer_id == ^customer_id)
+    |> preload([:line_items, :shopper])
+    |> Repo.one()
+  end
 
   @doc """
   Lists the open pool: every `:pending` order, oldest first, with line items.
@@ -54,6 +71,7 @@ defmodule PrepMech.Orders do
     Order
     |> where([o], o.customer_id == ^customer_id)
     |> order_by([o], desc: o.inserted_at)
+    |> preload(:line_items)
     |> Repo.all()
   end
 

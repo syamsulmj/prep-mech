@@ -181,4 +181,29 @@ defmodule PrepMech.OrdersTest do
       assert updated.pickup_status == :unavailable
     end
   end
+
+  describe "change_order/1" do
+    test "returns a changeset for a new order" do
+      assert %Ecto.Changeset{} = Orders.change_order()
+    end
+  end
+
+  describe "get_customer_order/2" do
+    test "returns the customer's own order with line items preloaded" do
+      customer = insert(:user, role: :customer)
+      order = insert(:order, customer: customer, line_items: [build(:line_item, name: "Milk")])
+
+      found = Orders.get_customer_order(customer.id, order.id)
+      assert found.id == order.id
+      assert [%{name: "Milk"}] = found.line_items
+    end
+
+    test "returns nil for another customer's order" do
+      c1 = insert(:user, role: :customer)
+      c2 = insert(:user, role: :customer)
+      order = insert(:order, customer: c1)
+
+      assert Orders.get_customer_order(c2.id, order.id) == nil
+    end
+  end
 end

@@ -1,0 +1,72 @@
+<div class="mx-auto max-w-2xl">
+  <div class="mb-1">
+    <.link navigate={~p"/"} class="text-xs text-ui-text-2 hover:text-ui-text">&larr; Orders</.link>
+  </div>
+
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight">Order #{@order.id}</h1>
+      <p class="mt-1 text-sm text-ui-text-2">{length(@order.line_items)} items</p>
+    </div>
+    <.status_chip status={@order.status} />
+  </div>
+
+  <%!-- lifecycle stepper --%>
+  <div class="mt-8 grid grid-cols-5 gap-1">
+    <div :for={step <- lifecycle_steps()} class="flex flex-col items-center gap-2">
+      <span class={[
+        "h-3.5 w-3.5 rounded-full border-2",
+        bead_class(step_state(@order.status, step))
+      ]}></span>
+      <span class={["text-center text-[10px]", step_label_class(step_state(@order.status, step))]}>
+        {step_label(step)}
+      </span>
+    </div>
+  </div>
+
+  <%!-- item checklist --%>
+  <div class="mt-8 border-t border-ui-line-soft">
+    <div
+      :for={item <- @order.line_items}
+      class="flex items-center gap-3 border-b border-ui-line-soft py-3"
+    >
+      <span class={[
+        "grid h-5 w-5 flex-none place-items-center rounded border text-xs",
+        item_box_class(item.pickup_status)
+      ]}>
+        {item_box_icon(item.pickup_status)}
+      </span>
+      <span class={["flex-1 text-sm", item_name_class(item.pickup_status)]}>{item.name}</span>
+      <span
+        :if={item.pickup_status == :unavailable}
+        class="text-[10px] font-semibold uppercase tracking-wide text-st-red"
+      >
+        Unavailable
+      </span>
+      <span :if={item.pickup_status != :unavailable} class="text-xs tabular-nums text-ui-text-3">
+        &times;{item.quantity}
+      </span>
+    </div>
+  </div>
+
+  <%!-- shopper panel --%>
+  <div
+    :if={@order.shopper}
+    class="mt-6 flex items-center justify-between gap-4 rounded-lg border border-ui-line-soft bg-ui-surface-2 p-3"
+  >
+    <div class="flex items-center gap-3">
+      <span class="grid h-8 w-8 flex-none place-items-center rounded-full border border-ui-line bg-ui-raised text-sm font-medium text-st-amber">
+        {String.first(@order.shopper.name)}
+      </span>
+      <div>
+        <p class="text-sm text-ui-text">
+          {@order.shopper.name} {shopper_status_text(@order.status)}
+        </p>
+        <p class="text-xs text-ui-text-2">{resolved_count(@order.line_items)}</p>
+      </div>
+    </div>
+    <a :if={@order.shopper.phone} href={"tel:#{@order.shopper.phone}"} class="ui-btn-secondary">
+      &#9990; Call
+    </a>
+  </div>
+</div>

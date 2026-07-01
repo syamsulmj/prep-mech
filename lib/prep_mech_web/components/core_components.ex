@@ -417,6 +417,45 @@ defmodule PrepMechWeb.CoreComponents do
   end
 
   @doc """
+  A soft-tint status pill for an order's lifecycle status.
+
+  Shared across the customer and shopper views so order status renders the
+  same way everywhere.
+
+  ## Examples
+
+      <.status_chip status={:shopping} />
+  """
+  attr :status, :atom, required: true
+
+  def status_chip(assigns) do
+    ~H"""
+    <span class={[
+      "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium",
+      chip_class(@status)
+    ]}>
+      <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+      {chip_label(@status)}
+    </span>
+    """
+  end
+
+  defp chip_class(:pending), do: "bg-st-amber/10 text-st-amber"
+  defp chip_class(:accepted), do: "bg-st-cyan/10 text-st-cyan"
+  defp chip_class(:shopping), do: "bg-st-violet/10 text-st-violet"
+  defp chip_class(:on_delivery), do: "bg-st-blue/10 text-st-blue"
+  defp chip_class(:delivered), do: "bg-st-green/10 text-st-green"
+
+  defp chip_label(:pending), do: "Pending"
+  defp chip_label(:accepted), do: "Accepted"
+  defp chip_label(:shopping), do: "Shopping"
+  defp chip_label(:on_delivery), do: "Out for delivery"
+  defp chip_label(:delivered), do: "Delivered"
+
+  @doc "Comma-joined item names, for order list previews."
+  def item_summary(line_items), do: Enum.map_join(line_items, ", ", & &1.name)
+
+  @doc """
   Renders a header with title.
   """
   attr :class, :string, default: nil

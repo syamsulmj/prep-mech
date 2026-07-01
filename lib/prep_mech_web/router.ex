@@ -17,12 +17,25 @@ defmodule PrepMechWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :customer do
+    plug :require_role, :customer
+  end
+
   ## Authenticated-only routes
   scope "/", PrepMechWeb do
     pipe_through [:browser, :ensure_authenticated]
 
     get "/", PageController, :home
     delete "/logout", SessionController, :logout
+  end
+
+  ## Customer-only routes
+  scope "/", PrepMechWeb do
+    pipe_through [:browser, :ensure_authenticated, :customer]
+
+    get "/orders/new", OrderController, :new
+    post "/orders", OrderController, :create
+    get "/orders/:id", OrderController, :show
   end
 
   ## Guest-only routes — redirect logged-in users to "/"

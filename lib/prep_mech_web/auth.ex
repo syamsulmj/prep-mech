@@ -59,6 +59,23 @@ defmodule PrepMechWeb.Auth do
   end
 
   @doc """
+  Plug that halts unless the current user has the given `role`.
+
+  Assumes `fetch_current_user/2` (and usually `ensure_authenticated/2`) ran
+  earlier. Used as `plug :require_role, :customer` in a pipeline.
+  """
+  def require_role(conn, role) do
+    if conn.assigns[:current_user] && conn.assigns.current_user.role == role do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You don't have access to that page.")
+      |> redirect(to: ~p"/")
+      |> halt()
+    end
+  end
+
+  @doc """
   Logs `user` in by storing their id in a freshly renewed session.
   """
   def log_in_user(conn, user) do

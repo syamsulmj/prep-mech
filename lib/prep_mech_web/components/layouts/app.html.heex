@@ -1,32 +1,26 @@
-<header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-zinc-100 py-3 text-sm">
-    <div class="flex items-center gap-4">
-      <a href="/">
-        <img src={~p"/images/logo.svg"} width="36" />
-      </a>
-      <p class="bg-brand/5 text-brand rounded-full px-2 font-medium leading-6">
-        v{Application.spec(:phoenix, :vsn)}
-      </p>
+<% user = assigns[:current_user] %>
+<div class="min-h-screen bg-ui-canvas font-sans text-ui-text antialiased">
+  <header class="border-b border-ui-line-soft">
+    <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
+      <.link navigate={~p"/"} class="font-pixel text-lg tracking-wide text-st-amber">
+        PREPMECH
+      </.link>
+      <nav class="flex items-center gap-4 text-sm text-ui-text-2 sm:gap-5">
+        <.link navigate={~p"/"} class="hover:text-ui-text">Orders</.link>
+        <%= if user do %>
+          <.link href={~p"/logout"} method="delete" class="hover:text-ui-text">Log out</.link>
+          <span
+            class="grid h-7 w-7 place-items-center rounded-full border border-ui-line bg-ui-surface-2 text-xs font-medium text-ui-text"
+            title={user.name}
+          >
+            {String.first(user.name)}
+          </span>
+        <% end %>
+      </nav>
     </div>
-    <div class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-      <a href="https://twitter.com/elixirphoenix" class="hover:text-zinc-700">
-        @elixirphoenix
-      </a>
-      <a href="https://github.com/phoenixframework/phoenix" class="hover:text-zinc-700">
-        GitHub
-      </a>
-      <a
-        href="https://hexdocs.pm/phoenix/overview.html"
-        class="rounded-lg bg-zinc-100 px-2 py-1 hover:bg-zinc-200/80"
-      >
-        Get Started <span aria-hidden="true">&rarr;</span>
-      </a>
-    </div>
-  </div>
-</header>
-<main class="px-4 py-20 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl">
+  </header>
+  <main class="mx-auto max-w-5xl px-4 py-8 sm:px-6">
     <.flash_group flash={@flash} />
     {@inner_content}
-  </div>
-</main>
+  </main>
+</div>

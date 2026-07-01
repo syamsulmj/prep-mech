@@ -1,0 +1,46 @@
+<div class="mx-auto max-w-2xl">
+  <div class="mb-6">
+    <.link navigate={~p"/"} class="text-xs text-ui-text-2 hover:text-ui-text">&larr; Orders</.link>
+    <h1 class="mt-2 text-xl font-semibold tracking-tight">New order</h1>
+    <p class="mt-1 text-sm text-ui-text-2">Add what you need — a shopper will pick it up.</p>
+  </div>
+
+  <.form :let={f} for={@changeset} action={~p"/orders"} class="space-y-5">
+    <.ui_input
+      field={f[:delivery_address]}
+      label="Delivery address"
+      placeholder="Where should we deliver?"
+    />
+    <.ui_input
+      field={f[:notes]}
+      label="Notes for shopper (optional)"
+      placeholder="e.g. leave at the guardhouse"
+    />
+
+    <div>
+      <div class="mb-2 flex items-center justify-between">
+        <span class="text-sm text-ui-text-2">Items</span>
+        <span id="item-count" class="text-sm font-medium tabular-nums text-ui-text">1 item</span>
+      </div>
+
+      <p
+        :for={msg <- Enum.map(f[:line_items].errors, &translate_error/1)}
+        class="mb-2 text-xs text-st-red"
+      >
+        Items: {msg}
+      </p>
+
+      <div id="line-items" class="space-y-2">
+        <.line_item_row index={0} />
+      </div>
+
+      <button type="button" id="add-item" class="ui-btn-ghost mt-2">+ Add item</button>
+    </div>
+
+    <button type="submit" class="ui-btn w-full">Place order</button>
+  </.form>
+</div>
+
+<template id="line-item-row">
+  <.line_item_row index={0} />
+</template>
