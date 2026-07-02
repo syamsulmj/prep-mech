@@ -50,8 +50,9 @@ defmodule PrepMechWeb.PWATest do
       assert conn.status == 200
       assert [content_type] = get_resp_header(conn, "content-type")
       assert content_type =~ "javascript"
-      # sanity: it is our SW, not some other file
-      assert conn.resp_body =~ "prepmech-static-v1"
+
+      # sanity: it is our SW, not some other file (version-agnostic so a cache bump won't break this)
+      assert conn.resp_body =~ "prepmech-static-"
     end
   end
 

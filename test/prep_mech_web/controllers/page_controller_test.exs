@@ -36,7 +36,7 @@ defmodule PrepMechWeb.PageControllerTest do
 
       resp = conn |> log_in_user(shopper) |> get(~p"/") |> html_response(200)
 
-      assert resp =~ "Open pool"
+      assert resp =~ "Available orders"
       assert resp =~ "My jobs"
       # a pending order's items show in the pool
       assert resp =~ "Poolmilk"

@@ -34,11 +34,23 @@
   <div class="mt-6 border-t border-ui-line-soft">
     <div
       :for={item <- @order.line_items}
+      data-item-id={item.id}
       class="flex items-center gap-3 border-b border-ui-line-soft py-3"
     >
+      <% base = "rounded-md border px-2.5 py-1 text-xs transition-colors" %>
+      <% picked_active = base <> " border-st-green bg-st-green/10 text-st-green" %>
+      <% unavailable_active = base <> " border-st-red bg-st-red/10 text-st-red" %>
+      <% inactive = base <> " border-ui-line text-ui-text-2 hover:text-ui-text" %>
+
       <span class="flex-1 text-sm text-ui-text">
         {item.name}
         <span class="text-xs tabular-nums text-ui-text-3">&times;{item.quantity}</span>
+        <span
+          data-queued-badge
+          class="ml-1 hidden text-[10px] font-medium uppercase tracking-wide text-st-amber"
+        >
+          &middot; queued
+        </span>
       </span>
 
       <.form
@@ -50,26 +62,20 @@
         <button
           name="status"
           value="picked"
-          class={[
-            "rounded-md border px-2.5 py-1 text-xs transition-colors",
-            if(item.pickup_status == :picked,
-              do: "border-st-green bg-st-green/10 text-st-green",
-              else: "border-ui-line text-ui-text-2 hover:text-ui-text"
-            )
-          ]}
+          data-toggle="picked"
+          data-class-active={picked_active}
+          data-class-inactive={inactive}
+          class={if item.pickup_status == :picked, do: picked_active, else: inactive}
         >
           Picked
         </button>
         <button
           name="status"
           value="unavailable"
-          class={[
-            "rounded-md border px-2.5 py-1 text-xs transition-colors",
-            if(item.pickup_status == :unavailable,
-              do: "border-st-red bg-st-red/10 text-st-red",
-              else: "border-ui-line text-ui-text-2 hover:text-ui-text"
-            )
-          ]}
+          data-toggle="unavailable"
+          data-class-active={unavailable_active}
+          data-class-inactive={inactive}
+          class={if item.pickup_status == :unavailable, do: unavailable_active, else: inactive}
         >
           Unavailable
         </button>

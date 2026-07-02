@@ -56,6 +56,24 @@ defmodule PrepMechWeb.JobControllerTest do
       conn = get(conn, ~p"/jobs/#{order}")
       assert redirected_to(conn) == ~p"/"
     end
+
+    test "renders offline-queue hooks on the item toggles", %{conn: conn, shopper: shopper} do
+      order =
+        insert(:order,
+          shopper: shopper,
+          status: :shopping,
+          line_items: [build(:line_item, name: "Milk", pickup_status: :pending)]
+        )
+
+      html = conn |> get(~p"/jobs/#{order}") |> html_response(200)
+
+      assert html =~ ~s(data-toggle="picked")
+      assert html =~ ~s(data-toggle="unavailable")
+      assert html =~ "data-class-active"
+      assert html =~ "data-class-inactive"
+      assert html =~ "data-item-id"
+      assert html =~ "data-queued-badge"
+    end
   end
 
   describe "POST /jobs/:id/advance" do

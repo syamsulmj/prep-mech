@@ -2,8 +2,8 @@
 // Offline writes (checking off items, advancing status) are Phase 6 and are NOT handled here;
 // non-GET requests pass straight through and fail normally when offline.
 
-const STATIC_CACHE = "prepmech-static-v1"
-const PAGES_CACHE = "prepmech-pages-v1"
+const STATIC_CACHE = "prepmech-static-v2"
+const PAGES_CACHE = "prepmech-pages-v2"
 const CURRENT_CACHES = [STATIC_CACHE, PAGES_CACHE]
 
 // Stable-named files precached at install. Fingerprinted assets (/assets/app-<hash>.js) are
@@ -66,17 +66,25 @@ self.addEventListener("fetch", (event) => {
     return
   }
 
-  // 2. Same-origin static assets — cache-first, fill on miss (safe: fingerprinted/immutable).
+  // 2. Same-origin static assets — STALE-WHILE-REVALIDATE. Serve the cached copy instantly (fast,
+  //    offline-capable), but always refetch in the background and update the cache. This keeps a
+  //    stable-named dev bundle (/assets/app.js) from going stale — a changed asset self-heals on the
+  //    next load — while a fingerprinted prod bundle just re-validates the same immutable file.
   if (url.origin === self.location.origin && /^\/(assets|fonts|images)\//.test(url.pathname)) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached
-        return fetch(request).then((response) => {
-          const copy = response.clone()
-          event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy)))
-          return response
+      caches.open(STATIC_CACHE).then((cache) =>
+        cache.match(request).then((cached) => {
+          const networkFetch = fetch(request)
+            .then((response) => {
+              cache.put(request, response.clone())
+              return response
+            })
+            .catch(() => cached) // offline: fall back to whatever we have cached
+          // Keep the SW alive for the background update; serve cache now if we have it.
+          event.waitUntil(networkFetch)
+          return cached || networkFetch
         })
-      })
+      )
     )
     return
   }

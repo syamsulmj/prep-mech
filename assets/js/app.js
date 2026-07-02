@@ -9,10 +9,12 @@ import {initOrderForm} from "./order_form"
 import {initLiveRegion} from "./live_region"
 import {initPool} from "./pool"
 import {initPwa} from "./pwa"
+import {initJobItems} from "./job_items"
 
 document.addEventListener("DOMContentLoaded", () => {
   initOrderForm()
   initLiveRegion()
   initPool()
   initPwa()
+  initJobItems()
 })
