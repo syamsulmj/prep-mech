@@ -2,6 +2,7 @@ defmodule PrepMech.OrdersTest do
   use PrepMech.DataCase, async: true
 
   alias PrepMech.Order
+  alias PrepMech.OrderEvents
   alias PrepMech.Orders
 
   describe "create_order/1" do
@@ -204,6 +205,124 @@ defmodule PrepMech.OrdersTest do
       order = insert(:order, customer: c1)
 
       assert Orders.get_customer_order(c2.id, order.id) == nil
+    end
+  end
+
+  describe "advance_to_next_status/1" do
+    test "advances an accepted order to shopping" do
+      order = insert(:order, status: :accepted)
+      assert {:ok, updated} = Orders.advance_to_next_status(order)
+      assert updated.status == :shopping
+    end
+
+    test "applies the resolved-items gate on shopping -> on_delivery" do
+      order =
+        insert(:order,
+          status: :shopping,
+          line_items: [build(:line_item, pickup_status: :pending)]
+        )
+
+      assert {:error, :unresolved_items} = Orders.advance_to_next_status(order)
+    end
+
+    test "rejects advancing a delivered order (no next status)" do
+      order = insert(:order, status: :delivered)
+      assert {:error, :invalid_transition} = Orders.advance_to_next_status(order)
+    end
+  end
+
+  describe "get_shopper_order/2" do
+    test "returns the shopper's own order with line items and customer preloaded" do
+      shopper = insert(:user, role: :shopper)
+
+      order =
+        insert(:order,
+          shopper: shopper,
+          status: :shopping,
+          line_items: [build(:line_item, name: "Milk")]
+        )
+
+      found = Orders.get_shopper_order(shopper.id, order.id)
+      assert found.id == order.id
+      assert [%{name: "Milk"}] = found.line_items
+      assert found.customer.id == order.customer_id
+    end
+
+    test "returns nil for another shopper's order" do
+      s1 = insert(:user, role: :shopper)
+      s2 = insert(:user, role: :shopper)
+      order = insert(:order, shopper: s1, status: :accepted)
+
+      assert Orders.get_shopper_order(s2.id, order.id) == nil
+    end
+  end
+
+  describe "pool domain events" do
+    test "create_order broadcasts :order_created to pool subscribers" do
+      :ok = OrderEvents.subscribe_to_pool()
+      customer = insert(:user, role: :customer)
+
+      {:ok, order} =
+        Orders.create_order(%{
+          "customer_id" => customer.id,
+          "delivery_address" => "12 Jalan Teluk Sisek, Kuantan",
+          "line_items" => [%{"name" => "Milk", "quantity" => "1"}]
+        })
+
+      oid = order.id
+      assert_receive {:order_created, %Order{id: ^oid}}
+    end
+
+    test "claim_order broadcasts :order_claimed to pool subscribers" do
+      :ok = OrderEvents.subscribe_to_pool()
+      order = insert(:order, status: :pending)
+      shopper = insert(:user, role: :shopper)
+      oid = order.id
+
+      assert :ok = Orders.claim_order(order.id, shopper.id)
+      assert_receive {:order_claimed, ^oid}
+    end
+  end
+
+  describe "order update events" do
+    test "advance_status notifies the order topic" do
+      order = insert(:order, status: :accepted)
+      :ok = OrderEvents.subscribe_to_order(order.id)
+
+      {:ok, _} = Orders.advance_status(order, :shopping)
+      assert_receive {:order_updated, %Order{}}
+    end
+
+    test "advance_status notifies the customer topic (their home list)" do
+      customer = insert(:user, role: :customer)
+      order = insert(:order, customer: customer, status: :accepted)
+      :ok = OrderEvents.subscribe_to_customer(customer.id)
+
+      {:ok, _} = Orders.advance_status(order, :shopping)
+      assert_receive {:order_updated, %Order{}}
+    end
+
+    test "claim_order notifies the order topic" do
+      order = insert(:order, status: :pending)
+      shopper = insert(:user, role: :shopper)
+      :ok = OrderEvents.subscribe_to_order(order.id)
+
+      :ok = Orders.claim_order(order.id, shopper.id)
+      assert_receive {:order_updated, %Order{}}
+    end
+
+    test "set_item_pickup_status notifies the order topic" do
+      order =
+        insert(:order,
+          status: :shopping,
+          line_items: [build(:line_item, pickup_status: :pending)]
+        )
+
+      [item] = order.line_items
+      :ok = OrderEvents.subscribe_to_order(order.id)
+
+      {:ok, _} = Orders.set_item_pickup_status(item.id, :picked)
+      assert_receive {:order_updated, _}
     end
   end
 end

@@ -8,47 +8,49 @@
   <.link navigate={~p"/orders/new"} class="ui-btn">+ New order</.link>
 </div>
 
-<div
-  :if={@orders == []}
-  class="mt-10 rounded-lg border border-ui-line bg-ui-surface px-6 py-14 text-center"
->
-  <svg
-    class="mx-auto mb-4 text-ui-text-3"
-    width="44"
-    height="44"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="1.4"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    aria-hidden="true"
+<div id="live-region" data-live-topic={"customer:#{@current_user.id}"}>
+  <div
+    :if={@orders == []}
+    class="mt-10 rounded-lg border border-ui-line bg-ui-surface px-6 py-14 text-center"
   >
-    <path d="M6 8h12l-1 12H7L6 8Z" />
-    <path d="M9 8V6a3 3 0 0 1 6 0v2" />
-  </svg>
-  <h2 class="text-base font-semibold">No orders yet</h2>
-  <p class="mx-auto mt-1 max-w-xs text-sm text-ui-text-2">
-    Create your first shopping run and track it here in real time.
-  </p>
-  <.link navigate={~p"/orders/new"} class="ui-btn mt-5">+ Create your first order</.link>
-</div>
-
-<ul
-  :if={@orders != []}
-  class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
->
-  <li :for={order <- @orders}>
-    <.link
-      navigate={~p"/orders/#{order}"}
-      class="flex h-full flex-col rounded-lg border border-ui-line bg-ui-surface p-4 transition-colors hover:border-ui-text-3 hover:bg-ui-surface-2"
+    <svg
+      class="mx-auto mb-4 text-ui-text-3"
+      width="44"
+      height="44"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.4"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
     >
-      <div class="flex items-start justify-between gap-3">
-        <p class="text-sm font-semibold">Order #{order.id}</p>
-        <.status_chip status={order.status} />
-      </div>
-      <p class="mt-2 truncate text-xs text-ui-text-2">{item_summary(order.line_items)}</p>
-      <p class="mt-1 text-xs text-ui-text-3">{length(order.line_items)} items</p>
-    </.link>
-  </li>
-</ul>
+      <path d="M6 8h12l-1 12H7L6 8Z" />
+      <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+    </svg>
+    <h2 class="text-base font-semibold">No orders yet</h2>
+    <p class="mx-auto mt-1 max-w-xs text-sm text-ui-text-2">
+      Create your first shopping run and track it here in real time.
+    </p>
+    <.link navigate={~p"/orders/new"} class="ui-btn mt-5">+ Create your first order</.link>
+  </div>
+
+  <ul
+    :if={@orders != []}
+    class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3"
+  >
+    <li :for={order <- @orders}>
+      <.link
+        navigate={~p"/orders/#{order}"}
+        class="flex h-full flex-col rounded-lg border border-ui-line bg-ui-surface p-4 transition-colors hover:border-ui-text-3 hover:bg-ui-surface-2"
+      >
+        <div class="flex items-start justify-between gap-3">
+          <p class="text-sm font-semibold">Order #{order.id}</p>
+          <.status_chip status={order.status} />
+        </div>
+        <p class="mt-2 truncate text-xs text-ui-text-2">{item_summary(order.line_items)}</p>
+        <p class="mt-1 text-xs text-ui-text-3">{length(order.line_items)} items</p>
+      </.link>
+    </li>
+  </ul>
+</div>

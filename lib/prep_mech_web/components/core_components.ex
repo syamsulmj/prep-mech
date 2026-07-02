@@ -456,6 +456,58 @@ defmodule PrepMechWeb.CoreComponents do
   def item_summary(line_items), do: Enum.map_join(line_items, ", ", & &1.name)
 
   @doc """
+  The order lifecycle stepper, shared by the customer tracking view and the
+  shopper working view. Highlights done/current steps relative to `status`.
+
+  ## Examples
+
+      <.order_stepper status={:shopping} />
+  """
+  attr :status, :atom, required: true
+
+  @lifecycle [:pending, :accepted, :shopping, :on_delivery, :delivered]
+
+  def order_stepper(assigns) do
+    assigns = assign(assigns, :steps, @lifecycle)
+
+    ~H"""
+    <div class="grid grid-cols-5 gap-1">
+      <div :for={step <- @steps} class="flex flex-col items-center gap-2">
+        <span class={["h-3.5 w-3.5 rounded-full border-2", step_bead(step_state(@status, step))]}></span>
+        <span class={["text-center text-[10px]", step_label_class(step_state(@status, step))]}>
+          {step_label(step)}
+        </span>
+      </div>
+    </div>
+    """
+  end
+
+  defp step_state(current, step) do
+    ci = Enum.find_index(@lifecycle, &(&1 == current))
+    si = Enum.find_index(@lifecycle, &(&1 == step))
+
+    cond do
+      si < ci -> :done
+      si == ci -> :now
+      true -> :todo
+    end
+  end
+
+  defp step_bead(:done), do: "border-st-amber bg-st-amber"
+  defp step_bead(:now), do: "border-st-amber bg-st-amber ring-2 ring-st-amber/30"
+  defp step_bead(:todo), do: "border-ui-line bg-ui-surface"
+
+  defp step_label_class(:done), do: "text-ui-text-2"
+  defp step_label_class(:now), do: "text-ui-text font-medium"
+  defp step_label_class(:todo), do: "text-ui-text-3"
+
+  defp step_label(:pending), do: "Placed"
+  defp step_label(:accepted), do: "Accepted"
+  defp step_label(:shopping), do: "Shopping"
+  defp step_label(:on_delivery), do: "Delivery"
+  defp step_label(:delivered), do: "Done"
+
+  @doc """
   Renders a header with title.
   """
   attr :class, :string, default: nil

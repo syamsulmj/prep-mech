@@ -1,0 +1,105 @@
+<div class="mx-auto max-w-2xl">
+  <div class="mb-1">
+    <.link navigate={~p"/"} class="text-xs text-ui-text-2 hover:text-ui-text">&larr; Dashboard</.link>
+  </div>
+
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <h1 class="text-xl font-semibold tracking-tight">Job #{@order.id}</h1>
+      <p class="mt-1 text-sm text-ui-text-2">{length(@order.line_items)} items</p>
+    </div>
+    <.status_chip status={@order.status} />
+  </div>
+
+  <div class="mt-8">
+    <.order_stepper status={@order.status} />
+  </div>
+
+  <%!-- deliver-to panel --%>
+  <div class="mt-8 rounded-lg border border-ui-line-soft bg-ui-surface-2 p-3">
+    <p class="text-[10px] uppercase tracking-wide text-ui-text-3">Deliver to</p>
+    <p class="mt-1 text-sm text-ui-text">{@order.customer.name}</p>
+    <p class="text-sm text-ui-text-2">{@order.delivery_address}</p>
+    <p :if={@order.notes} class="mt-1 text-xs text-ui-text-3">Note: {@order.notes}</p>
+    <a
+      :if={@order.customer.phone}
+      href={"tel:#{@order.customer.phone}"}
+      class="ui-btn-secondary mt-3"
+    >
+      &#9990; Call customer
+    </a>
+  </div>
+
+  <%!-- item checklist --%>
+  <div class="mt-6 border-t border-ui-line-soft">
+    <div
+      :for={item <- @order.line_items}
+      class="flex items-center gap-3 border-b border-ui-line-soft py-3"
+    >
+      <span class="flex-1 text-sm text-ui-text">
+        {item.name}
+        <span class="text-xs tabular-nums text-ui-text-3">&times;{item.quantity}</span>
+      </span>
+
+      <.form
+        :if={@order.status == :shopping}
+        for={%{}}
+        action={~p"/jobs/#{@order}/items/#{item.id}"}
+        class="flex gap-1.5"
+      >
+        <button
+          name="status"
+          value="picked"
+          class={[
+            "rounded-md border px-2.5 py-1 text-xs transition-colors",
+            if(item.pickup_status == :picked,
+              do: "border-st-green bg-st-green/10 text-st-green",
+              else: "border-ui-line text-ui-text-2 hover:text-ui-text"
+            )
+          ]}
+        >
+          Picked
+        </button>
+        <button
+          name="status"
+          value="unavailable"
+          class={[
+            "rounded-md border px-2.5 py-1 text-xs transition-colors",
+            if(item.pickup_status == :unavailable,
+              do: "border-st-red bg-st-red/10 text-st-red",
+              else: "border-ui-line text-ui-text-2 hover:text-ui-text"
+            )
+          ]}
+        >
+          Unavailable
+        </button>
+      </.form>
+
+      <span
+        :if={@order.status != :shopping}
+        class={["text-xs font-medium", item_state_class(item.pickup_status)]}
+      >
+        {item_state_label(item.pickup_status)}
+      </span>
+    </div>
+  </div>
+
+  <%!-- advance action --%>
+  <div :if={next_action_label(@order.status)} class="mt-6">
+    <.form for={%{}} action={~p"/jobs/#{@order}/advance"}>
+      <button
+        type="submit"
+        disabled={@order.status == :shopping and not all_resolved?(@order.line_items)}
+        class="ui-btn w-full disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {next_action_label(@order.status)}
+      </button>
+    </.form>
+    <p
+      :if={@order.status == :shopping and not all_resolved?(@order.line_items)}
+      class="mt-2 text-center text-xs text-ui-text-3"
+    >
+      Resolve every item to head out for delivery.
+    </p>
+  </div>
+</div>

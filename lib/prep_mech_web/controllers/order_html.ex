@@ -9,8 +9,6 @@ defmodule PrepMechWeb.OrderHTML do
 
   embed_templates "order_html/*"
 
-  @lifecycle [:pending, :accepted, :shopping, :on_delivery, :delivered]
-
   # ---------- themed input ----------
 
   attr :field, Phoenix.HTML.FormField, required: true
@@ -77,37 +75,6 @@ defmodule PrepMechWeb.OrderHTML do
     </div>
     """
   end
-
-  # ---------- lifecycle stepper ----------
-
-  @doc "The ordered lifecycle steps, for rendering the stepper."
-  def lifecycle_steps(), do: @lifecycle
-
-  @doc "Where a given step sits relative to the order's current status."
-  def step_state(current, step) do
-    ci = Enum.find_index(@lifecycle, &(&1 == current))
-    si = Enum.find_index(@lifecycle, &(&1 == step))
-
-    cond do
-      si < ci -> :done
-      si == ci -> :now
-      true -> :todo
-    end
-  end
-
-  def step_label(:pending), do: "Placed"
-  def step_label(:accepted), do: "Accepted"
-  def step_label(:shopping), do: "Shopping"
-  def step_label(:on_delivery), do: "Delivery"
-  def step_label(:delivered), do: "Done"
-
-  def bead_class(:done), do: "border-st-amber bg-st-amber"
-  def bead_class(:now), do: "border-st-amber bg-st-amber ring-2 ring-st-amber/30"
-  def bead_class(:todo), do: "border-ui-line bg-ui-surface"
-
-  def step_label_class(:done), do: "text-ui-text-2"
-  def step_label_class(:now), do: "text-ui-text font-medium"
-  def step_label_class(:todo), do: "text-ui-text-3"
 
   # ---------- line items ----------
 

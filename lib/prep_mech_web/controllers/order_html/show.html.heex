@@ -1,4 +1,4 @@
-<div class="mx-auto max-w-2xl">
+<div id="live-region" data-live-topic={"order:#{@order.id}"} class="mx-auto max-w-2xl">
   <div class="mb-1">
     <.link navigate={~p"/"} class="text-xs text-ui-text-2 hover:text-ui-text">&larr; Orders</.link>
   </div>
@@ -12,16 +12,8 @@
   </div>
 
   <%!-- lifecycle stepper --%>
-  <div class="mt-8 grid grid-cols-5 gap-1">
-    <div :for={step <- lifecycle_steps()} class="flex flex-col items-center gap-2">
-      <span class={[
-        "h-3.5 w-3.5 rounded-full border-2",
-        bead_class(step_state(@order.status, step))
-      ]}></span>
-      <span class={["text-center text-[10px]", step_label_class(step_state(@order.status, step))]}>
-        {step_label(step)}
-      </span>
-    </div>
+  <div class="mt-8">
+    <.order_stepper status={@order.status} />
   </div>
 
   <%!-- item checklist --%>

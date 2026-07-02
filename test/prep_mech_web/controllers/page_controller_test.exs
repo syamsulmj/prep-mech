@@ -29,10 +29,20 @@ defmodule PrepMechWeb.PageControllerTest do
   end
 
   describe "GET / as a shopper" do
-    test "shows the shopper placeholder, not a customer order list", %{conn: conn} do
-      conn = log_in_user(conn, insert(:user, role: :shopper))
-      resp = conn |> get(~p"/") |> html_response(200)
-      assert resp =~ "Shopper"
+    test "shows the dashboard, open pool, and my jobs", %{conn: conn} do
+      shopper = insert(:user, role: :shopper)
+      insert(:order, status: :pending, line_items: [build(:line_item, name: "Poolmilk")])
+      job = insert(:order, status: :shopping, shopper: shopper, line_items: [build(:line_item)])
+
+      resp = conn |> log_in_user(shopper) |> get(~p"/") |> html_response(200)
+
+      assert resp =~ "Open pool"
+      assert resp =~ "My jobs"
+      # a pending order's items show in the pool
+      assert resp =~ "Poolmilk"
+      # the shopper's own claimed job shows by its order number
+      assert resp =~ "Order ##{job.id}"
+      # not the customer view
       refute resp =~ "Your orders"
     end
   end

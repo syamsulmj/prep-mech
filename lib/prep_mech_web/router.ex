@@ -11,6 +11,7 @@ defmodule PrepMechWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
+    plug :put_user_token
   end
 
   pipeline :api do
@@ -19,6 +20,10 @@ defmodule PrepMechWeb.Router do
 
   pipeline :customer do
     plug :require_role, :customer
+  end
+
+  pipeline :shopper do
+    plug :require_role, :shopper
   end
 
   ## Authenticated-only routes
@@ -36,6 +41,16 @@ defmodule PrepMechWeb.Router do
     get "/orders/new", OrderController, :new
     post "/orders", OrderController, :create
     get "/orders/:id", OrderController, :show
+  end
+
+  ## Shopper-only routes
+  scope "/", PrepMechWeb do
+    pipe_through [:browser, :ensure_authenticated, :shopper]
+
+    post "/jobs/:id/claim", JobController, :claim
+    get "/jobs/:id", JobController, :show
+    post "/jobs/:id/advance", JobController, :advance
+    post "/jobs/:id/items/:item_id", JobController, :set_item
   end
 
   ## Guest-only routes — redirect logged-in users to "/"
