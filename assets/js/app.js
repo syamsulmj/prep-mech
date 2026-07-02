@@ -8,9 +8,11 @@ import "phoenix_html"
 import {initOrderForm} from "./order_form"
 import {initLiveRegion} from "./live_region"
 import {initPool} from "./pool"
+import {initPwa} from "./pwa"
 
 document.addEventListener("DOMContentLoaded", () => {
   initOrderForm()
   initLiveRegion()
   initPool()
+  initPwa()
 })
