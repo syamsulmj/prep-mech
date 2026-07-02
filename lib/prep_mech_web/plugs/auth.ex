@@ -46,7 +46,6 @@ defmodule PrepMechWeb.Plugs.Auth do
       conn
     else
       conn
-      |> put_flash(:error, "You must be logged in to access this page.")
       |> redirect(to: ~p"/login")
       |> halt()
     end
