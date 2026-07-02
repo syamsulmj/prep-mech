@@ -25,7 +25,8 @@ defmodule PrepMechWeb.PoolChannel do
     push(socket, "order_created", %{
       id: order.id,
       count: length(order.line_items),
-      summary: CoreComponents.item_summary(order.line_items)
+      summary: CoreComponents.item_summary(order.line_items),
+      delivery_address: order.delivery_address
     })
 
     {:noreply, socket}

@@ -45,5 +45,38 @@ defmodule PrepMechWeb.PageControllerTest do
       # not the customer view
       refute resp =~ "Your orders"
     end
+
+    test "a fresh pool order's card shows its delivery location and a New badge", %{conn: conn} do
+      shopper = insert(:user, role: :shopper)
+
+      insert(:order,
+        status: :pending,
+        delivery_address: "12 Jalan Teluk Sisek, Kuantan",
+        line_items: [build(:line_item, name: "Poolmilk")]
+      )
+
+      resp = conn |> log_in_user(shopper) |> get(~p"/") |> html_response(200)
+
+      assert resp =~ "12 Jalan Teluk Sisek, Kuantan"
+      assert resp =~ "New"
+    end
+
+    test "an order placed over 10 minutes ago shows no New badge", %{conn: conn} do
+      shopper = insert(:user, role: :shopper)
+
+      insert(:order,
+        status: :pending,
+        delivery_address: "99 Old Road, Kuantan",
+        inserted_at: NaiveDateTime.add(NaiveDateTime.utc_now(), -30 * 60, :second),
+        line_items: [build(:line_item, name: "Staleorder")]
+      )
+
+      resp = conn |> log_in_user(shopper) |> get(~p"/") |> html_response(200)
+
+      assert resp =~ "99 Old Road, Kuantan"
+
+      # the shopper home shows the word "New" only via the badge, so its absence is meaningful here
+      refute resp =~ "New"
+    end
   end
 end

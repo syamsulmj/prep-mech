@@ -36,7 +36,7 @@ export function initPool() {
 }
 
 // Build a pool card with DOM APIs + textContent (never innerHTML) so a
-// customer-entered item name can never inject markup.
+// customer-entered item name can never inject markup. Live cards are always "New".
 function buildPoolCard(order, csrf) {
   const li = document.createElement("li")
   li.id = `pool-order-${order.id}`
@@ -44,26 +44,49 @@ function buildPoolCard(order, csrf) {
   li.dataset.orderId = order.id
   li.dataset.summary = order.summary
   li.dataset.count = order.count
+  li.dataset.address = order.delivery_address || ""
 
   const head = document.createElement("div")
   head.className = "flex items-start justify-between gap-3"
+
+  const titleWrap = document.createElement("div")
+  titleWrap.className = "flex items-center gap-2"
   const title = document.createElement("p")
   title.className = "text-sm font-semibold"
   title.textContent = `Order #${order.id}`
+  const badge = document.createElement("span")
+  badge.className = "rounded bg-st-blue/10 px-1.5 py-0.5 text-[10px] font-medium text-st-blue"
+  badge.textContent = "New"
+  titleWrap.append(title, badge)
+
   const count = document.createElement("span")
   count.className = "text-xs text-ui-text-3"
   count.textContent = `${order.count} items`
-  head.append(title, count)
+  head.append(titleWrap, count)
 
   const view = document.createElement("button")
   view.type = "button"
-  view.className = "pool-view mt-2 flex-1 text-left text-xs text-ui-text-2 hover:text-ui-text"
+  view.className = "pool-view mt-2 text-left text-xs text-ui-text-2 hover:text-ui-text"
   view.textContent = order.summary
+
+  const loc = document.createElement("p")
+  loc.className = "mt-2 flex items-center gap-1 truncate text-xs text-ui-text-3"
+  const pin = document.createElement("span")
+  pin.setAttribute("aria-hidden", "true")
+  pin.textContent = "\u{1F4CD}"
+  const locText = document.createElement("span")
+  locText.className = "truncate"
+  locText.textContent = order.delivery_address || ""
+  loc.append(pin, locText)
+
+  const placed = document.createElement("p")
+  placed.className = "mt-1 text-[11px] text-ui-text-3"
+  placed.textContent = "placed just now"
 
   const form = document.createElement("form")
   form.action = `/jobs/${order.id}/claim`
   form.method = "post"
-  form.className = "pool-accept mt-3"
+  form.className = "pool-accept mt-3 flex-none"
   const token = document.createElement("input")
   token.type = "hidden"
   token.name = "_csrf_token"
@@ -74,13 +97,13 @@ function buildPoolCard(order, csrf) {
   accept.textContent = "Accept"
   form.append(token, accept)
 
-  li.append(head, view, form)
+  li.append(head, view, loc, placed, form)
   return li
 }
 
-// Quick-pickup modal: clicking a card's summary opens a dialog with the order's
-// details + an Accept form. Focus moves in on open and back to the trigger on
-// close; Escape and backdrop-click both close it.
+// Quick-pickup / confirm modal: clicking a card's summary OR its Accept button opens a dialog
+// with the order's details (including the full delivery location) + an Accept form. Intercepting
+// the Accept form's submit keeps the no-JS path working (the form still posts without JS).
 function initPoolModal(list) {
   const modal = document.getElementById("pool-modal")
   if (!modal) return
@@ -88,6 +111,7 @@ function initPoolModal(list) {
   const idEl = document.getElementById("pool-modal-id")
   const summaryEl = document.getElementById("pool-modal-summary")
   const countEl = document.getElementById("pool-modal-count")
+  const locEl = document.getElementById("pool-modal-location-text")
   const form = document.getElementById("pool-modal-form")
   const closeBtn = document.getElementById("pool-modal-close")
   let lastFocused = null
@@ -96,6 +120,7 @@ function initPoolModal(list) {
     idEl.textContent = `#${card.dataset.orderId}`
     summaryEl.textContent = card.dataset.summary
     countEl.textContent = `${card.dataset.count} items`
+    if (locEl) locEl.textContent = card.dataset.address || ""
     form.action = `/jobs/${card.dataset.orderId}/claim`
     lastFocused = document.activeElement
     modal.hidden = false
@@ -116,6 +141,15 @@ function initPoolModal(list) {
     if (!view) return
     open(view.closest(".pool-card"))
   })
+
+  // Accept → confirm: intercept the form submit and open the modal instead.
+  list.addEventListener("submit", (e) => {
+    const acceptForm = e.target.closest(".pool-accept")
+    if (!acceptForm) return
+    e.preventDefault()
+    open(acceptForm.closest(".pool-card"))
+  })
+
   closeBtn.addEventListener("click", close)
   modal.addEventListener("click", (e) => {
     if (e.target === modal) close()

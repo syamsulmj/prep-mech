@@ -3,7 +3,7 @@
 // loaded by the tracking page; we never touch `L` unless it is present.
 import {getSocket} from "./socket"
 
-let started = false
+let currentEl = null
 let map = null
 let marker = null
 let channel = null
@@ -50,19 +50,23 @@ function renderStale() {
   }
 }
 
-function start() {
-  if (started) return
-  const el = document.getElementById("delivery-map")
-  if (!el || !window.L) return
+function start(el) {
+  if (!window.L) return
   const socket = getSocket()
   if (!socket) return
 
-  started = true
+  currentEl = el
   map = window.L.map(el).setView(DEFAULT_CENTER, 12)
   window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: "© OpenStreetMap contributors",
   }).addTo(map)
+
+  // The container was just swapped in (order → on_delivery) and may not be laid out
+  // yet; recompute size after the browser paints, or tiles render half-sized.
+  requestAnimationFrame(() => {
+    if (map) map.invalidateSize()
+  })
 
   channel = socket.channel(`location:${el.dataset.orderId}`, {})
   channel.join().receive("ok", (reply) => place(reply.location))
@@ -71,13 +75,14 @@ function start() {
   staleTimer = setInterval(renderStale, 10000)
 }
 
-// Tear down when the map leaves the page (e.g. order → delivered swaps the div out).
+// Tear down whatever map we currently hold (order left on_delivery, or the element
+// was swapped for a fresh one).
 function teardown() {
-  if (!started) return
+  if (!currentEl) return
   if (staleTimer) clearInterval(staleTimer)
   if (channel) channel.leave()
   if (map) map.remove()
-  started = false
+  currentEl = null
   map = null
   marker = null
   channel = null
@@ -86,17 +91,24 @@ function teardown() {
 }
 
 function sync() {
-  if (document.getElementById("delivery-map")) {
-    start()
-  } else {
+  const el = document.getElementById("delivery-map")
+
+  if (el) {
+    // A map container is present. Re-init only if it's a NEW element — a live-region
+    // swap replaces #delivery-map with a fresh (uninitialized) node of the same id,
+    // so keying on element identity (not a boolean) is what makes the transition work.
+    if (el !== currentEl) {
+      teardown()
+      start(el)
+    }
+  } else if (currentEl) {
     teardown()
   }
 }
 
 export function initDeliveryMap() {
-  // The map container can arrive/leave on a live-region swap (order → on_delivery
-  // → delivered), so sync on load AND after each swap. Both start() and teardown()
-  // are idempotent.
+  // The map container can arrive/leave/replace on a live-region swap (order →
+  // on_delivery → delivered), so re-sync on load AND after each swap.
   sync()
   document.addEventListener("live-region:updated", sync)
 }

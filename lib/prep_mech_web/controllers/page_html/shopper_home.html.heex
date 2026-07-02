@@ -38,18 +38,35 @@
     data-order-id={order.id}
     data-summary={item_summary(order.line_items)}
     data-count={length(order.line_items)}
+    data-address={order.delivery_address}
   >
     <div class="flex items-start justify-between gap-3">
-      <p class="text-sm font-semibold">Order #{order.id}</p>
+      <div class="flex items-center gap-2">
+        <p class="text-sm font-semibold">Order #{order.id}</p>
+        <span
+          :if={recent?(order.inserted_at, 10)}
+          class="rounded bg-st-blue/10 px-1.5 py-0.5 text-[10px] font-medium text-st-blue"
+        >
+          New
+        </span>
+      </div>
       <span class="text-xs text-ui-text-3">{length(order.line_items)} items</span>
     </div>
+
     <button
       type="button"
-      class="pool-view mt-2 flex-1 text-left text-xs text-ui-text-2 hover:text-ui-text"
+      class="pool-view mt-2 text-left text-xs text-ui-text-2 hover:text-ui-text"
     >
       {item_summary(order.line_items)}
     </button>
-    <.form for={%{}} action={~p"/jobs/#{order}/claim"} class="pool-accept mt-3">
+
+    <p class="mt-2 flex items-center gap-1 truncate text-xs text-ui-text-3">
+      <span aria-hidden="true">&#128205;</span>
+      <span class="truncate">{order.delivery_address}</span>
+    </p>
+    <p class="mt-1 text-[11px] text-ui-text-3">placed {time_ago(order.inserted_at)}</p>
+
+    <.form for={%{}} action={~p"/jobs/#{order}/claim"} class="pool-accept mt-3 flex-none">
       <button type="submit" class="ui-btn w-full">Accept</button>
     </.form>
   </li>
@@ -79,6 +96,10 @@
       </button>
     </div>
     <p id="pool-modal-summary" class="mt-2 text-sm text-ui-text-2"></p>
+    <p id="pool-modal-location" class="mt-1 flex items-start gap-1 text-xs text-ui-text-3">
+      <span aria-hidden="true">&#128205;</span>
+      <span id="pool-modal-location-text"></span>
+    </p>
     <p id="pool-modal-count" class="mt-1 text-xs text-ui-text-3"></p>
     <form id="pool-modal-form" method="post" class="mt-4">
       <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
