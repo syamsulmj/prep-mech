@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0c0d10" />
+    <title>Offline · PrepMech</title>
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; }
+      body {
+        display: flex; align-items: center; justify-content: center;
+        min-height: 100vh; padding: 24px;
+        background: #0c0d10; color: #e7e8ea;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+      }
+      .card { max-width: 360px; }
+      .mark { color: #f7c948; font-weight: 700; letter-spacing: 0.08em; font-size: 14px; text-transform: uppercase; }
+      h1 { font-size: 20px; margin: 16px 0 8px; }
+      p { color: #9a9ea7; font-size: 14px; line-height: 1.5; margin: 0 0 20px; }
+      button {
+        border: 1px solid #24262c; background: #17191d; color: #e7e8ea;
+        padding: 10px 16px; border-radius: 8px; font-size: 14px; cursor: pointer;
+      }
+      button:hover { background: #1b1d22; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="mark">PrepMech</div>
+      <h1>You're offline</h1>
+      <p>This page hasn't been opened yet, so there's nothing cached to show. Reconnect to continue.</p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

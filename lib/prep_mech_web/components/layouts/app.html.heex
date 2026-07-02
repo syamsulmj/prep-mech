@@ -1,5 +1,11 @@
 <% user = assigns[:current_user] %>
 <div class="min-h-screen bg-ui-canvas font-sans text-ui-text antialiased">
+  <div
+    id="offline-banner"
+    class="hidden bg-st-amber px-4 py-2 text-center text-sm font-medium text-st-amber-ink"
+  >
+    Offline · showing last-known state
+  </div>
   <header class="border-b border-ui-line-soft">
     <div class="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 sm:px-6">
       <.link navigate={~p"/"} class="font-pixel text-lg tracking-wide text-st-amber">
