@@ -4,6 +4,7 @@ defmodule PrepMechWeb.UserSocket do
   channel "orders:pool", PrepMechWeb.PoolChannel
   channel "order:*", PrepMechWeb.OrderChannel
   channel "customer:*", PrepMechWeb.OrderChannel
+  channel "location:*", PrepMechWeb.LocationChannel
 
   # Signed-token auth: only clients holding a valid token (issued to a
   # logged-in user and rendered into the page) may connect, and the connection

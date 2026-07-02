@@ -18,7 +18,7 @@ defmodule PrepMechWeb do
   """
 
   def static_paths,
-    do: ~w(assets fonts images favicon.ico robots.txt manifest.json sw.js offline.html)
+    do: ~w(assets fonts images favicon.ico robots.txt manifest.json sw.js offline.html vendor)
 
   def router do
     quote do

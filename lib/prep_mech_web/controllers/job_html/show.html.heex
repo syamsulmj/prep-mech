@@ -15,6 +15,17 @@
     <.order_stepper status={@order.status} />
   </div>
 
+  <%!-- live location sharing (only while out for delivery) --%>
+  <div
+    :if={@order.status == :on_delivery}
+    id="location-sender"
+    data-order-id={@order.id}
+    class="mt-6 flex items-center gap-2 rounded-lg border border-ui-line-soft bg-ui-surface-2 p-3 text-sm text-ui-text-2"
+  >
+    <span class="h-2 w-2 flex-none animate-pulse rounded-full bg-st-green"></span>
+    Sharing your location with the customer…
+  </div>
+
   <%!-- deliver-to panel --%>
   <div class="mt-8 rounded-lg border border-ui-line-soft bg-ui-surface-2 p-3">
     <p class="text-[10px] uppercase tracking-wide text-ui-text-3">Deliver to</p>

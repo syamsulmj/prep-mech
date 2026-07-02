@@ -90,5 +90,27 @@ defmodule PrepMechWeb.OrderControllerTest do
       conn = get(conn, ~p"/orders/#{order}")
       assert redirected_to(conn) == ~p"/"
     end
+
+    test "renders the live map hooks when the order is on delivery", %{
+      conn: conn,
+      customer: customer
+    } do
+      order =
+        insert(:order, customer: customer, status: :on_delivery, line_items: [build(:line_item)])
+
+      resp = conn |> get(~p"/orders/#{order}") |> html_response(200)
+
+      assert resp =~ ~s(id="delivery-map")
+      assert resp =~ ~s(data-order-id="#{order.id}")
+      assert resp =~ "/vendor/leaflet.css"
+      assert resp =~ "/vendor/leaflet.js"
+    end
+
+    test "does not render the map before on delivery", %{conn: conn, customer: customer} do
+      order =
+        insert(:order, customer: customer, status: :shopping, line_items: [build(:line_item)])
+
+      refute conn |> get(~p"/orders/#{order}") |> html_response(200) =~ ~s(id="delivery-map")
+    end
   end
 end

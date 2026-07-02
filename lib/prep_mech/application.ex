@@ -12,6 +12,7 @@ defmodule PrepMech.Application do
       PrepMech.Repo,
       {DNSCluster, query: Application.get_env(:prep_mech, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: PrepMech.PubSub},
+      PrepMech.LiveLocations,
       # Start the Finch HTTP client for sending emails
       {Finch, name: PrepMech.Finch},
       # Start a worker by calling: PrepMech.Worker.start_link(arg)

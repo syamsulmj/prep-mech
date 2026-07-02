@@ -74,6 +74,19 @@ defmodule PrepMechWeb.JobControllerTest do
       assert html =~ "data-item-id"
       assert html =~ "data-queued-badge"
     end
+
+    test "renders the location-sender when the job is on delivery", %{
+      conn: conn,
+      shopper: shopper
+    } do
+      order =
+        insert(:order, shopper: shopper, status: :on_delivery, line_items: [build(:line_item)])
+
+      resp = conn |> get(~p"/jobs/#{order}") |> html_response(200)
+
+      assert resp =~ ~s(id="location-sender")
+      assert resp =~ ~s(data-order-id="#{order.id}")
+    end
   end
 
   describe "POST /jobs/:id/advance" do

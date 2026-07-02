@@ -23,7 +23,10 @@ export function initLiveRegion() {
       const doc = new DOMParser().parseFromString(await res.text(), "text/html")
       const fresh = doc.getElementById("live-region")
       const current = document.getElementById("live-region")
-      if (fresh && current) current.replaceChildren(...fresh.childNodes)
+      if (fresh && current) {
+        current.replaceChildren(...fresh.childNodes)
+        document.dispatchEvent(new Event("live-region:updated"))
+      }
     } catch (_e) {
       // transient fetch failure — the next event or a manual refresh recovers
     }

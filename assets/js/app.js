@@ -10,6 +10,8 @@ import {initLiveRegion} from "./live_region"
 import {initPool} from "./pool"
 import {initPwa} from "./pwa"
 import {initJobItems} from "./job_items"
+import {initDeliveryMap} from "./delivery_map"
+import {initLocationSender} from "./location_sender"
 
 document.addEventListener("DOMContentLoaded", () => {
   initOrderForm()
@@ -17,4 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initPool()
   initPwa()
   initJobItems()
+  initDeliveryMap()
+  initLocationSender()
 })
