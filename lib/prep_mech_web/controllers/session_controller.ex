@@ -3,7 +3,7 @@ defmodule PrepMechWeb.SessionController do
 
   alias PrepMech.Accounts
   alias PrepMech.User
-  alias PrepMechWeb.Auth
+  alias PrepMechWeb.Plugs.Auth
 
   ## Login
 

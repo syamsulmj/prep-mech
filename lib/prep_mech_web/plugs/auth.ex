@@ -1,11 +1,12 @@
-defmodule PrepMechWeb.Auth do
+defmodule PrepMechWeb.Plugs.Auth do
   @moduledoc """
   Plugs and helpers for cookie-based session authentication.
 
   There is no token table: a logged-in user is identified solely by a
   `:user_id` stored in the signed Phoenix session. `fetch_current_user/2`
-  loads that user into `conn.assigns.current_user` on every request, and the
-  `ensure_authenticated/2` / `non_authenticated/2` plugs gate routes based on it.
+  loads that user into `conn.assigns.current_user` on every request (and issues
+  their socket token), and the `ensure_authenticated/2` / `non_authenticated/2`
+  / `require_role/2` plugs gate routes based on it.
   """
 
   use PrepMechWeb, :verified_routes
@@ -16,14 +17,23 @@ defmodule PrepMechWeb.Auth do
   alias PrepMech.Accounts
 
   @doc """
-  Plug that assigns `:current_user` from the session `:user_id` (or `nil`).
+  Plug that assigns `:current_user` (from the session `:user_id`, or `nil`) and,
+  when logged in, a signed `:user_token`.
 
-  Belongs in the `:browser` pipeline so every request knows who is logged in.
+  The token is rendered into a `<meta>` tag and sent when the browser opens the
+  WebSocket, so only authenticated users can connect and each connection is
+  bound to a verified user id. Belongs in the `:browser` pipeline.
   """
   def fetch_current_user(conn, _opts) do
     user_id = get_session(conn, :user_id)
     user = user_id && Accounts.get_user(user_id)
-    assign(conn, :current_user, user)
+
+    conn
+    |> assign(:current_user, user)
+    |> assign(
+      :user_token,
+      user && Phoenix.Token.sign(PrepMechWeb.Endpoint, "user socket", user.id)
+    )
   end
 
   @doc """
@@ -55,24 +65,6 @@ defmodule PrepMechWeb.Auth do
       |> halt()
     else
       conn
-    end
-  end
-
-  @doc """
-  Plug that assigns a signed socket token for the current user (or nothing).
-
-  The token is rendered into a `<meta>` tag and sent by the browser when it
-  opens the WebSocket, so only authenticated users can connect and each
-  connection is bound to a verified user id.
-  """
-  def put_user_token(conn, _opts) do
-    case conn.assigns[:current_user] do
-      nil ->
-        conn
-
-      user ->
-        token = Phoenix.Token.sign(PrepMechWeb.Endpoint, "user socket", user.id)
-        assign(conn, :user_token, token)
     end
   end
 

@@ -1,7 +1,7 @@
 defmodule PrepMechWeb.Router do
   use PrepMechWeb, :router
 
-  import PrepMechWeb.Auth
+  import PrepMechWeb.Plugs.Auth
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -11,7 +11,6 @@ defmodule PrepMechWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug :fetch_current_user
-    plug :put_user_token
   end
 
   pipeline :api do

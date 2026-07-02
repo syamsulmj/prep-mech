@@ -39,7 +39,7 @@ defmodule PrepMechWeb.ConnCase do
 
   @doc """
   Logs the given `user` into the `conn` by setting the session `:user_id`,
-  mirroring what `PrepMechWeb.Auth.log_in_user/2` does in the app.
+  mirroring what `PrepMechWeb.Plugs.Auth.log_in_user/2` does in the app.
   """
   def log_in_user(conn, user) do
     conn
