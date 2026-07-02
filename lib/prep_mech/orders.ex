@@ -19,6 +19,7 @@ defmodule PrepMech.Orders do
 
   alias PrepMech.LineItem
   alias PrepMech.Order
+  alias PrepMech.OrderEvents
   alias PrepMech.Repo
 
   @doc """
@@ -30,6 +31,14 @@ defmodule PrepMech.Orders do
     %Order{}
     |> Order.create_changeset(attrs)
     |> Repo.insert()
+    |> case do
+      {:ok, order} = result ->
+        OrderEvents.order_created(order)
+        result
+
+      error ->
+        error
+    end
   end
 
   @doc "Returns a blank order changeset, for rendering the create form."
@@ -52,6 +61,18 @@ defmodule PrepMech.Orders do
     Order
     |> where([o], o.id == ^order_id and o.customer_id == ^customer_id)
     |> preload([:line_items, :shopper])
+    |> Repo.one()
+  end
+
+  @doc """
+  Gets an order scoped to the shopper who claimed it, with line items and the
+  customer preloaded, or `nil`. Mirrors `get_customer_order/2` for the shopper
+  side so a shopper only ever loads their own jobs.
+  """
+  def get_shopper_order(shopper_id, order_id) do
+    Order
+    |> where([o], o.id == ^order_id and o.shopper_id == ^shopper_id)
+    |> preload([:line_items, :customer])
     |> Repo.one()
   end
 
@@ -80,6 +101,7 @@ defmodule PrepMech.Orders do
     Order
     |> where([o], o.shopper_id == ^shopper_id)
     |> order_by([o], desc: o.inserted_at)
+    |> preload(:line_items)
     |> Repo.all()
   end
 
@@ -100,11 +122,15 @@ defmodule PrepMech.Orders do
         set: [status: :accepted, shopper_id: shopper_id, accepted_at: now(), updated_at: now()]
       )
 
-    claim_result(count)
+    claim_result(count, order_id)
   end
 
-  defp claim_result(1), do: :ok
-  defp claim_result(0), do: {:error, :already_claimed}
+  defp claim_result(1, order_id) do
+    order_id |> get_order() |> OrderEvents.order_claimed()
+    :ok
+  end
+
+  defp claim_result(0, _order_id), do: {:error, :already_claimed}
 
   @doc """
   Advances an order one step along the lifecycle.
@@ -119,6 +145,28 @@ defmodule PrepMech.Orders do
       order
       |> Order.status_changeset(transition_attrs(target))
       |> Repo.update()
+      |> case do
+        {:ok, updated} = result ->
+          OrderEvents.order_updated(updated)
+          result
+
+        error ->
+          error
+      end
+    end
+  end
+
+  @doc """
+  Advances an order to the next status in the lifecycle, computed server-side.
+
+  The web layer never supplies the target — it just asks to advance — so there
+  is no untrusted status to validate. Returns `{:error, :invalid_transition}`
+  when there is no next status (e.g. a delivered order).
+  """
+  def advance_to_next_status(%Order{status: from} = order) do
+    case next_status(from) do
+      nil -> {:error, :invalid_transition}
+      target -> advance_status(order, target)
     end
   end
 
@@ -157,6 +205,14 @@ defmodule PrepMech.Orders do
     |> Repo.get!(item_id)
     |> LineItem.pickup_changeset(status)
     |> Repo.update()
+    |> case do
+      {:ok, item} = result ->
+        OrderEvents.item_updated(item)
+        result
+
+      error ->
+        error
+    end
   end
 
   # Helpers
