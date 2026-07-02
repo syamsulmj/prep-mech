@@ -59,6 +59,24 @@ defmodule PrepMechWeb.Auth do
   end
 
   @doc """
+  Plug that assigns a signed socket token for the current user (or nothing).
+
+  The token is rendered into a `<meta>` tag and sent by the browser when it
+  opens the WebSocket, so only authenticated users can connect and each
+  connection is bound to a verified user id.
+  """
+  def put_user_token(conn, _opts) do
+    case conn.assigns[:current_user] do
+      nil ->
+        conn
+
+      user ->
+        token = Phoenix.Token.sign(PrepMechWeb.Endpoint, "user socket", user.id)
+        assign(conn, :user_token, token)
+    end
+  end
+
+  @doc """
   Plug that halts unless the current user has the given `role`.
 
   Assumes `fetch_current_user/2` (and usually `ensure_authenticated/2`) ran
